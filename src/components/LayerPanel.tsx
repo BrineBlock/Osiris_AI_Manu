@@ -97,6 +97,15 @@ const LAYER_GROUPS = [
     ],
   },
   {
+    label: 'RESOURCE',
+    fullLabel: 'RESOURCE INTEL',
+    icon: Mountain,
+    layers: [
+      { key: 'mining', label: 'Mining Companies', dataKey: 'mining_companies' },
+      { key: 'ram_fabs', label: 'Memory / RAM Fabs', dataKey: 'ram_companies' },
+    ],
+  },
+  {
     label: 'DISPLAY',
     fullLabel: 'DISPLAY',
     icon: Sun,

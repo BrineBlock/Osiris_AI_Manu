@@ -181,7 +181,7 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
       createDot(map, 'dot-fire', isGhost ? phantomPurple : '#E65100', 10);
       createDot(map, 'dot-cctv', cameraColor, 10);
 
-      const sources = ['flights','military','jets','private-fl','satellites','earthquakes','gdelt','gps-jamming','day-night','cctv','fires','weather','infrastructure','maritime','maritime-choke','maritime-ships','live-news','sigint-news','conflict-zones', 'war-alerts-targets', 'war-alerts-lines', 'balloons', 'radiation', 'ip-sweep-devices', 'ip-sweep-pulse', 'ip-sweep-connections', 'scan-targets', 'sdk-entities', 'sdk-links', 'malware-nodes', 'network-mesh'];
+      const sources = ['flights','military','jets','private-fl','satellites','earthquakes','gdelt','gps-jamming','day-night','cctv','fires','weather','infrastructure','maritime','maritime-choke','maritime-ships','live-news','sigint-news','conflict-zones', 'war-alerts-targets', 'war-alerts-lines', 'balloons', 'radiation', 'ip-sweep-devices', 'ip-sweep-pulse', 'ip-sweep-connections', 'scan-targets', 'sdk-entities', 'sdk-links', 'malware-nodes', 'network-mesh', 'mining-sites', 'ram-sites'];
       sources.forEach(s => map.addSource(s, { type: 'geojson', data: EMPTY_FC }));
 
       // Warning icon generator (parameterized — eliminates 3x copy-paste)
@@ -345,6 +345,42 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
         'text-field': ['get','name'], 'text-size': 9, 'text-font': ['Open Sans Regular'],
         'text-offset': [0, 2], 'text-max-width': 14, 'text-allow-overlap': false,
       }, paint: { 'text-color': ['case', ['in', 'SEISMIC RISK', ['get', 'status']], '#E65100', '#26A69A'], 'text-halo-color': '#000', 'text-halo-width': 1, 'text-opacity': 0.7 }});
+
+      // Mining Companies — colored by commodity category
+      const miningColor: any = ['match', ['get','category'],
+        'copper','#FF8A65', 'gold','#FFD54F', 'silver','#CFD8DC',
+        'pgm','#4DB6AC', 'rare_earth','#BA68C8', '#FFB74D'];
+      map.addLayer({ id: 'mining-glow', type: 'circle', source: 'mining-sites', paint: {
+        'circle-radius': ['interpolate',['linear'],['zoom'], 1,8, 5,14, 10,22],
+        'circle-color': miningColor, 'circle-opacity': 0.08, 'circle-blur': 1,
+      }});
+      map.addLayer({ id: 'mining-dots', type: 'circle', source: 'mining-sites', paint: {
+        'circle-radius': ['interpolate',['linear'],['zoom'], 1,4, 5,6, 10,10],
+        'circle-color': miningColor, 'circle-opacity': 0.8,
+        'circle-stroke-width': 1.5, 'circle-stroke-color': miningColor, 'circle-stroke-opacity': 0.35,
+      }});
+      map.addLayer({ id: 'mining-label', type: 'symbol', source: 'mining-sites', minzoom: 4, layout: {
+        'text-field': ['get','site'], 'text-size': 9, 'text-font': ['Open Sans Regular'],
+        'text-offset': [0, 2], 'text-max-width': 14, 'text-allow-overlap': false,
+      }, paint: { 'text-color': miningColor, 'text-halo-color': '#000', 'text-halo-width': 1, 'text-opacity': 0.75 }});
+
+      // Memory / RAM Fabs — colored by ecosystem role
+      const ramColor: any = ['match', ['get','category'],
+        'dram_hbm','#4FC3F7', 'nand','#81C784', 'controller_ip','#FFF176',
+        'module_maker','#90A4AE', 'packaging_test','#F06292', 'equipment','#9575CD', '#4FC3F7'];
+      map.addLayer({ id: 'ram-glow', type: 'circle', source: 'ram-sites', paint: {
+        'circle-radius': ['interpolate',['linear'],['zoom'], 1,8, 5,14, 10,22],
+        'circle-color': ramColor, 'circle-opacity': 0.08, 'circle-blur': 1,
+      }});
+      map.addLayer({ id: 'ram-dots', type: 'circle', source: 'ram-sites', paint: {
+        'circle-radius': ['interpolate',['linear'],['zoom'], 1,4, 5,6, 10,10],
+        'circle-color': ramColor, 'circle-opacity': 0.8,
+        'circle-stroke-width': 1.5, 'circle-stroke-color': ramColor, 'circle-stroke-opacity': 0.35,
+      }});
+      map.addLayer({ id: 'ram-label', type: 'symbol', source: 'ram-sites', minzoom: 4, layout: {
+        'text-field': ['get','company'], 'text-size': 9, 'text-font': ['Open Sans Regular'],
+        'text-offset': [0, 2], 'text-max-width': 14, 'text-allow-overlap': false,
+      }, paint: { 'text-color': ramColor, 'text-halo-color': '#000', 'text-halo-width': 1, 'text-opacity': 0.75 }});
 
       // Satellites
       map.addLayer({ id: 'sat-glow', type: 'circle', source: 'satellites', paint: {
@@ -798,7 +834,7 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
     });
 
     // ── Generic hover for clickables ──
-    ['conflict-icons','cctv-dots','eq-circles','sat-dots','fires-heat','gdelt-dots','weather-dots','infra-dots','maritime-dots','choke-dots','news-dots','sigint-news-dots','balloon-dots','rad-dots','ship-dots','sweep-device-dots','scan-targets-dots','sdk-sea','sdk-sea-glow','sdk-sea-atmo','sdk-air','sdk-air-glow','sdk-air-atmo','sdk-intel','sdk-intel-glow','sdk-intel-atmo','malware-dots'].forEach(layer => {
+    ['conflict-icons','cctv-dots','eq-circles','sat-dots','fires-heat','gdelt-dots','weather-dots','infra-dots','maritime-dots','choke-dots','news-dots','sigint-news-dots','balloon-dots','rad-dots','ship-dots','sweep-device-dots','scan-targets-dots','sdk-sea','sdk-sea-glow','sdk-sea-atmo','sdk-air','sdk-air-glow','sdk-air-atmo','sdk-intel','sdk-intel-glow','sdk-intel-atmo','malware-dots','mining-dots','ram-dots'].forEach(layer => {
       map.on('mouseenter', layer, () => { map.getCanvas().style.cursor = 'pointer'; });
       map.on('mouseleave', layer, () => { map.getCanvas().style.cursor = ''; });
     });
@@ -841,6 +877,49 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
           <div><span style="color:#5C5A54;font-size:9px;">SCM RISK LEVEL</span><br/><span style="color:${color};font-weight:bold;">${p.risk_level}</span></div>
         </div>
         ${threatsHtml}
+      </div>`);
+    });
+
+    // ── Mining Companies ──
+    const MINING_COLORS: Record<string, string> = { copper: '#FF8A65', gold: '#FFD54F', silver: '#CFD8DC', pgm: '#4DB6AC', rare_earth: '#BA68C8', specialty: '#FFB74D' };
+    map.on('click', 'mining-dots', e => {
+      if (!e.features?.length) return;
+      const p = e.features[0].properties as any;
+      const coords = (e.features[0].geometry as any).coordinates;
+      const color = MINING_COLORS[p.category] || '#FFB74D';
+      const commodities = p.commodities ? JSON.parse(p.commodities) : [];
+      popup(coords, `<div style="${pStyle}border:1px solid ${color}40;">
+        <div style="color:${color};font-size:12px;font-weight:700;margin-bottom:4px;">⛏️ ${htmlEsc(p.company)}</div>
+        <div style="font-size:9px;color:#aaa;margin-bottom:8px;">${htmlEsc(p.site)} — ${htmlEsc(p.country)}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:9px;margin-bottom:8px;">
+          <div><span style="color:#5C5A54;">CATEGORY</span><br/><span style="color:${color};font-weight:bold;">${htmlEsc((p.category || '').toUpperCase().replace('_',' '))}</span></div>
+          <div><span style="color:#5C5A54;">TICKER</span><br/><span style="color:#E8E6E0;">${htmlEsc(p.ticker || '—')}${p.exchange ? ' · ' + htmlEsc(p.exchange) : ''}</span></div>
+          <div><span style="color:#5C5A54;">SITE TYPE</span><br/><span style="color:#E8E6E0;">${htmlEsc((p.site_type || 'mine').toUpperCase())}</span></div>
+          <div><span style="color:#5C5A54;">HQ</span><br/><span style="color:#E8E6E0;">${htmlEsc(p.hq || '—')}</span></div>
+        </div>
+        <div style="font-size:9px;color:#8A8880;margin-bottom:6px;">COMMODITIES: <span style="color:${color};">${commodities.map((c: string) => htmlEsc(c)).join(', ')}</span></div>
+        ${p.notes ? `<div style="font-size:9px;color:#aaa;line-height:1.4;margin-bottom:6px;">${htmlEsc(p.notes)}</div>` : ''}
+        <a href="https://www.google.com/maps/@${coords[1]},${coords[0]},13z/data=!3m1!1e3" target="_blank" style="${linkStyle}color:${color};border:1px solid ${color}40;background:${color}15;">SATELLITE VIEW</a>
+      </div>`);
+    });
+
+    // ── Memory / RAM Fabs ──
+    const RAM_COLORS: Record<string, string> = { dram_hbm: '#4FC3F7', nand: '#81C784', controller_ip: '#FFF176', module_maker: '#90A4AE', packaging_test: '#F06292', equipment: '#9575CD' };
+    map.on('click', 'ram-dots', e => {
+      if (!e.features?.length) return;
+      const p = e.features[0].properties as any;
+      const coords = (e.features[0].geometry as any).coordinates;
+      const color = RAM_COLORS[p.category] || '#4FC3F7';
+      popup(coords, `<div style="${pStyle}border:1px solid ${color}40;">
+        <div style="color:${color};font-size:12px;font-weight:700;margin-bottom:4px;">💾 ${htmlEsc(p.company)}</div>
+        <div style="font-size:9px;color:#aaa;margin-bottom:8px;">${htmlEsc(p.site)} — ${htmlEsc(p.country)}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:9px;margin-bottom:8px;">
+          <div><span style="color:#5C5A54;">ROLE</span><br/><span style="color:${color};font-weight:bold;">${htmlEsc((p.category || '').toUpperCase().replace(/_/g,' '))}</span></div>
+          <div><span style="color:#5C5A54;">TICKER</span><br/><span style="color:#E8E6E0;">${htmlEsc(p.ticker || '—')}${p.exchange ? ' · ' + htmlEsc(p.exchange) : ''}</span></div>
+          <div><span style="color:#5C5A54;">SITE TYPE</span><br/><span style="color:#E8E6E0;">${htmlEsc((p.site_type || 'fab').toUpperCase())}</span></div>
+          <div><span style="color:#5C5A54;">HQ</span><br/><span style="color:#E8E6E0;">${htmlEsc(p.hq || '—')}</span></div>
+        </div>
+        ${p.notes ? `<div style="font-size:9px;color:#aaa;line-height:1.4;">${htmlEsc(p.notes)}</div>` : ''}
       </div>`);
     });
 
@@ -1210,6 +1289,16 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
 
   useEffect(() => {
     if (!mapReady) return;
+    setGeo('mining-sites', activeLayers.mining && data.mining_companies ? data.mining_companies.map((m: any) => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [m.lng, m.lat] }, properties: { company: m.company, site: m.site, site_type: m.site_type, country: m.country, category: m.category, commodities: m.commodities, ticker: m.ticker, exchange: m.exchange, hq: m.hq, notes: m.notes } })) : []);
+  }, [mapReady, data.mining_companies, activeLayers.mining, setGeo]);
+
+  useEffect(() => {
+    if (!mapReady) return;
+    setGeo('ram-sites', activeLayers.ram_fabs && data.ram_companies ? data.ram_companies.map((m: any) => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [m.lng, m.lat] }, properties: { company: m.company, site: m.site, site_type: m.site_type, country: m.country, category: m.category, commodities: m.commodities, ticker: m.ticker, exchange: m.exchange, hq: m.hq, notes: m.notes } })) : []);
+  }, [mapReady, data.ram_companies, activeLayers.ram_fabs, setGeo]);
+
+  useEffect(() => {
+    if (!mapReady) return;
     setGeo('maritime', activeLayers.maritime && data.maritime_ports ? data.maritime_ports.map((p: any) => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [p.lng, p.lat] }, properties: { name: p.name, country: p.country, type: p.type, volume: p.volume, fleet: p.fleet, rank: p.rank } })) : []);
     setGeo('maritime-choke', activeLayers.maritime && data.maritime_chokepoints ? data.maritime_chokepoints.map((c: any) => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [c.lng, c.lat] }, properties: { name: c.name, traffic: c.traffic, risk: c.risk } })) : []);
     setGeo('maritime-ships', activeLayers.maritime && data.maritime_ships ? data.maritime_ships.map((s: any) => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [s.lng, s.lat] }, properties: { name: s.name || s.mmsi?.toString(), type: s.type || 'cargo', speed: s.speed, heading: s.heading, destination: s.destination, flag: s.flag } })) : []);
@@ -1366,6 +1455,8 @@ function OsirisMap({ data, activeLayers, onEntityClick, onMouseCoords, onRightCl
     setVis(['fires-heat'], activeLayers.fires);
     setVis(['weather-glow','weather-dots','weather-label'], activeLayers.weather);
     setVis(['infra-glow','infra-dots','infra-label'], activeLayers.infrastructure);
+    setVis(['mining-glow','mining-dots','mining-label'], activeLayers.mining);
+    setVis(['ram-glow','ram-dots','ram-label'], activeLayers.ram_fabs);
     setVis(['maritime-glow','maritime-dots','maritime-label'], activeLayers.maritime);
     setVis(['choke-glow','choke-dots','choke-label'], activeLayers.maritime);
     setVis(['ship-dots','ship-label'], activeLayers.maritime);

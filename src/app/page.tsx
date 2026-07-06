@@ -159,6 +159,8 @@ export default function Dashboard() {
     sdk_naval: true,
     terrain_3d: false,
     malware: false,
+    mining: false,
+    ram_fabs: false,
   });
   const [liveFeedUrl, setLiveFeedUrl] = useState<string | null>(null);
   const [liveFeedName, setLiveFeedName] = useState('');
@@ -450,6 +452,17 @@ export default function Dashboard() {
     if (activeLayers.malware && !layerFetchedRef.current.has('malware')) {
       fetchEndpoint('/api/malware', d => ({ malware_threats: d.threats }));
       layerFetchedRef.current.add('malware');
+    }
+
+    // Mining Companies (static seed — fetched once)
+    if (activeLayers.mining && !layerFetchedRef.current.has('mining')) {
+      fetchEndpoint('/api/mining/companies', d => ({ mining_companies: d.sites }));
+      layerFetchedRef.current.add('mining');
+    }
+    // Memory / RAM Fabs (static seed — fetched once)
+    if (activeLayers.ram_fabs && !layerFetchedRef.current.has('ram_fabs')) {
+      fetchEndpoint('/api/ram/companies', d => ({ ram_companies: d.sites }));
+      layerFetchedRef.current.add('ram_fabs');
     }
 
 
