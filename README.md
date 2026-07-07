@@ -7,7 +7,7 @@ sdk: docker
 app_port: 3000
 pinned: false
 license: mit
-short_description: Resource-intelligence fork of OSIRIS (mining + AI supply chain)
+short_description: Mining & AI supply-chain intel on the OSIRIS globe
 ---
 
 <div align="center">
