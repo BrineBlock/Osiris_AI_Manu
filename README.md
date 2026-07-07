@@ -1,3 +1,15 @@
+---
+title: OSIRIS AI Manu
+emoji: ⛏️
+colorFrom: gray
+colorTo: yellow
+sdk: docker
+app_port: 3000
+pinned: false
+license: mit
+short_description: Resource-intelligence fork of OSIRIS (mining + AI supply chain)
+---
+
 <div align="center">
 
 # ⬡ OSIRIS
